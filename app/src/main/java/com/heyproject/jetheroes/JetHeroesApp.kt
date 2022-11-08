@@ -1,6 +1,7 @@
 package com.heyproject.jetheroes
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -36,10 +37,12 @@ Written by Yayan Rahmat Wijaya on 11/8/2022 15:13
 Github : https://github.com/yayanrw
  **/
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun JetHeroesApp(
     modifier: Modifier = Modifier,
 ) {
+    val groupedHeroes = HeroesData.heroes.sortedBy { it.name }.groupBy { it.name[0] }
     Box(modifier = modifier) {
         val scope = rememberCoroutineScope()
         val listState = rememberLazyListState()
@@ -50,10 +53,17 @@ fun JetHeroesApp(
         LazyColumn(
             state = listState, contentPadding = PaddingValues(bottom = 80.dp)
         ) {
-            items(HeroesData.heroes, key = { it.id }) { hero ->
-                HeroListItem(
-                    name = hero.name, photoUrl = hero.photoUrl, modifier = Modifier.fillMaxWidth()
-                )
+            groupedHeroes.forEach { (initial, heroes) ->
+                stickyHeader {
+                    CharacterHeader(initial)
+                }
+                items(heroes, key = { it.id }) { hero ->
+                    HeroListItem(
+                        name = hero.name,
+                        photoUrl = hero.photoUrl,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
         AnimatedVisibility(
